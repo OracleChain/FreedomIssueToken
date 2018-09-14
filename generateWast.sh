@@ -1,1 +1,1 @@
-eosiocpp -o eosdactoken.wast eosdactoken.cpp
+eosiocpp -o publictokens.wast publictokens.cpp
