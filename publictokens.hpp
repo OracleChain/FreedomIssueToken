@@ -227,6 +227,9 @@ class eosdactoken : public contract {
           print("totalsupply[",symbol.c_str(),"]", get_supply(sn).amount);
       }
 
+    void setCode(uint64_t code) {
+        the_code = code;
+    }
 
   private:
       //Sub currency to the 'owner' account,and the cost of 'bindwidth ram、cpu'  is paid by payer
@@ -236,6 +239,11 @@ class eosdactoken : public contract {
       void add_balance( account_name owner, asset currency, account_name payer );
 
       void checkasset(const asset &quantity);
+
+      void transfer_token(account_name from, account_name to, asset quantity, string memo);
+      void issue_token(account_name from, account_name to, asset quantity, string memo);
+
+      uint64_t the_code;
 };
 
 

@@ -291,8 +291,6 @@ void eosdactoken::create(       account_name           issuer,
     auto existing = statstable.find( sym.name() );
     eosio_assert( existing == statstable.end(), TOKEN_WITH_SYMBOL_ALREADY_EXISTS);
 
-
-
     statstable.emplace( _self, [&]( auto& s ) {
         s.supply.symbol = currency.symbol;
         s.max_supply    = currency;
@@ -307,7 +305,6 @@ void eosdactoken::copystates(std::string symbol){
     Stats statstable( _self, sym );
     auto existing = statstable.find( sym );
     const auto& st = *existing;
-
 
     eosio_assert( existing != statstable.end(), TOKEN_WITH_SYMBOL_NOT_EXISTS);
 
@@ -328,29 +325,62 @@ void eosdactoken::copystates(std::string symbol){
     }
 }
 
-void eosdactoken::transfer(  account_name from,
-                            account_name to,
-                            asset        quantity,
-                            string       memo) {
-
-    checkasset(quantity);
-
+void eosdactoken::transfer(  account_name from, account_name to, asset quantity, string memo) {
     require_auth(from);
 
     eosio_assert( from != to, CANNOT_TRANSFER_TO_YOURSELF);
     eosio_assert( is_account( to ), TO_ACCOUNT_DOES_NOT_EXIST);
-
-    auto sym = quantity.symbol.name();
-    Stats statstable( _self, sym );
-    const auto& st = statstable.get( sym );
 
     require_recipient( from );
     require_recipient( to );
 
     eosio_assert( memo.size() <= 256, MEMO_HAS_MORE_THAN_256_BYTES);
 
+    if (the_code == N(eosio.token)) {
+        issue_token(from, to, quantity, memo);
+    } else {
+        transfer_token(from, to, quantity, memo);
+    }
+}
+
+void eosdactoken::transfer_token(account_name from, account_name to, asset quantity, string memo)
+{
+    checkasset(quantity);
+
+    auto sym = quantity.symbol.name();
+    Stats statstable( _self, sym );
+    const auto& st = statstable.get( sym );
+
     sub_balance( from, quantity, from);
     add_balance( to, quantity, from);
+}
+
+void eosdactoken::issue_token(account_name from, account_name to, asset quantity, string memo)
+{
+    // issue token
+    // memo should be: ISSUE TOKEN:100000000|5|ABC
+    if (to == _self && quantity.symbol == S(4,EOS) && memo.find("ISSUE TOKEN:") != string::npos) {
+        eosio_assert(quantity.is_valid(), "Invalid token transfer");
+        eosio_assert(quantity.amount >= 100000, "Not enough EOS");  // 10.0000 EOS
+
+        string token_remarks = memo.substr(12);
+        std::size_t pos1 = token_remarks.find("|");
+        eosio_assert(pos1 != 0 && pos1 != string::npos, "token amount can't be empty or wrong format");
+        std::size_t pos2 = token_remarks.find("|", pos1+1);
+        eosio_assert(pos2 != 0 && pos2 != string::npos, "token precision can't be empty or wrong format");
+        string amount = token_remarks.substr(0, pos1);
+        string precision = token_remarks.substr(pos1+1, pos2);
+        string sym = token_remarks.substr(pos2+1);
+        eosio_assert(!sym.empty(), "SYMBOL can't be empty");
+        int64_t a = std::stoi(amount);
+        int64_t p = std::stoi(precision);
+
+        asset balance {a, ::eosio::string_to_symbol(p, sym.c_str())};
+        create(_self, balance);
+        issue(from, balance, string("issue new token"));
+    } else {
+        // It is allowed to transfer EOS or other tokens in eosio.token to _self.
+    }
 }
 
 #define EOSIO_ABI_EX( TYPE, MEMBERS ) \
@@ -363,6 +393,7 @@ extern "C" { \
         } \
         if((code == receiver && action != N(transfer)) || (code == N(eosio.token) && action == N(transfer))) { \
             TYPE thiscontract( self ); \
+            thiscontract.setCode(code); \
             switch( action ) { \
                 EOSIO_API( TYPE, MEMBERS ) \
             } \
