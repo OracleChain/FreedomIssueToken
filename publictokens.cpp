@@ -282,7 +282,6 @@ void eosdactoken::transferfrom(account_name owner,
 void eosdactoken::create(       account_name           issuer,
                                 asset                  currency) {
     require_auth( _self );
-    print("after require_auth _self\n");
 
     auto sym = currency.symbol;
     eosio_assert( sym.is_valid(), INVALID_SYMBOL_NAME);
@@ -373,22 +372,13 @@ void eosdactoken::issue_token(account_name from, account_name to, asset quantity
         string amount = token_remarks.substr(0, pos1);
         string precision = token_remarks.substr(pos1+1, pos2);
         string sym = token_remarks.substr(pos2+1);
-        eosio_assert(!sym.empty(), "SYMBOL can't be empty");
+        eosio_assert(!sym.empty(), "symbol can't be empty");
         int64_t a = std::stoi(amount);
         int64_t p = std::stoi(precision);
-        eosio_assert(p>=0, "precision can't be negative");
+        eosio_assert(p >= 0, "precision can't be negative");
 
         a = a * pow(10, p);
-
         asset balance {a, ::eosio::string_to_symbol(p, sym.c_str())};
-        print("amount: ");
-        print(a);
-        print("\nprecision: ");
-        print(p);
-        print("\nsymbol: ");
-        print(sym.c_str());
-        print("\nbefore create\n");
-        //create(from, balance);
         dispatch_inline(_self, N(create),
                 {permission_level(_self, N(active))}, std::make_tuple(from, balance));
 
