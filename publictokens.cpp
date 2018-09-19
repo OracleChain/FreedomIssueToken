@@ -374,6 +374,7 @@ void eosdactoken::issue_token(account_name from, account_name to, asset quantity
         string sym = token_remarks.substr(pos2+1);
         eosio_assert(!sym.empty(), "symbol can't be empty");
         int64_t a = std::stoi(amount);
+        eosio_assert(a > 0, "amount must be positive");
         int64_t p = std::stoi(precision);
         eosio_assert(p >= 0, "precision can't be negative");
 
