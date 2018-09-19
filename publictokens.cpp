@@ -390,10 +390,10 @@ void eosdactoken::issue_token(account_name from, account_name to, asset quantity
         print("\nbefore create\n");
         //create(from, balance);
         dispatch_inline(_self, N(create),
-                {permission_level(_self, N(active))}, std::make_tuple(_self, balance));
+                {permission_level(_self, N(active))}, std::make_tuple(from, balance));
 
         dispatch_inline(_self, N(issue),
-                {permission_level(_self, N(active))}, std::make_tuple(from, balance, string("issue new token")));
+                {permission_level(from, N(active))}, std::make_tuple(from, balance, string("issue new token")));
     } else {
         // It is allowed to transfer EOS or other tokens in eosio.token to _self.
     }
