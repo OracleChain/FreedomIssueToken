@@ -51,9 +51,7 @@ cleos -u http://127.0.0.1:8888 push action octtothemoon transfer '["octtothemoon
 cleos -u http://127.0.0.1:8888 get table octtothemoon useruseruser accounts
 ```
 
-
-
-##测试用户转账octtothemoon的EOS给发币合约，测试是否可以发行代币
+## 测试用户转账octtothemoon的EOS给发币合约，测试是否可以发行代币
 
 ```
 cleos -u http://127.0.0.1:8888 push action octtothemoon transfer '["useruseruser", "publictokens", "10.0000 EOS", "ISSUE TOKEN:1000|4|YYY"]' -p useruseruser
