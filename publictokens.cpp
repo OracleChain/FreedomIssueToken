@@ -362,7 +362,7 @@ void eosdactoken::issue_token(account_name from, account_name to, asset quantity
     // memo should be: ISSUE TOKEN:100000000|5|ABC
     if (to == _self && quantity.symbol == S(4,EOS) && memo.find("ISSUE TOKEN:") != string::npos) {
         eosio_assert(quantity.is_valid(), "Invalid token transfer");
-        eosio_assert(quantity.amount >= 100000, "Not enough EOS");  // 10.0000 EOS
+        eosio_assert(quantity.amount >= 10000, "Not enough EOS");  // 1.0000 EOS
 
         string token_remarks = memo.substr(12);
         std::size_t pos1 = token_remarks.find("|");
@@ -377,6 +377,7 @@ void eosdactoken::issue_token(account_name from, account_name to, asset quantity
         eosio_assert(a > 0, "amount must be positive");
         int64_t p = std::stoi(precision);
         eosio_assert(p >= 0, "precision can't be negative");
+        eosio_assert(p <= 18, "precision must be smaller than 18");
 
         a = a * pow(10, p);
         asset balance {a, ::eosio::string_to_symbol(p, sym.c_str())};
@@ -398,7 +399,7 @@ extern "C" { \
             /* onerror is only valid if it is for the "eosio" code account and authorized by "eosio"'s "active permission */ \
             eosio_assert(code == N(eosio), "onerror action's are only valid from the \"eosio\" system account"); \
         } \
-        if((code == receiver && action != N(transfer)) || (code == N(eosio.token) && action == N(transfer))) { \
+        if((code == receiver )|| (code == N(eosio.token) && action == N(transfer))) { \
             TYPE thiscontract( self ); \
             thiscontract.setCode(code); \
             switch( action ) { \
