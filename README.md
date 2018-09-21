@@ -27,7 +27,7 @@ cleos -u http://127.0.0.1:8888 push action eosio.token transfer '["eosio", "user
 cleos -u http://127.0.0.1:8888 get table publictokens useruseruser accounts
 ```
 
-## 测试用户转账eosio.token的EOS给发币合约，用来发行代币
+##  测试用户转账eosio.token的EOS给发币合约，用来发行代币
 
 ```
 cleos -u http://127.0.0.1:8888 push action eosio.token transfer '["useruseruser", "publictokens", "10.0000 EOS", "ISSUE TOKEN:1000|4|ZZZ"]' -p useruseruser
