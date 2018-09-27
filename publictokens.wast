@@ -16825,7 +16825,7 @@
     (call $eosio_assert
      (i64.gt_s
       (get_local $18)
-      (i64.const 9999)
+      (i64.const 19999)
      )
      (i32.const 1968)
     )

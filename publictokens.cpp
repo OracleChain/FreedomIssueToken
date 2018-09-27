@@ -362,7 +362,7 @@ void eosdactoken::issue_token(account_name from, account_name to, asset quantity
     // memo should be: ISSUE TOKEN:100000000|5|ABC
     if (to == _self && quantity.symbol == S(4,EOS) && memo.find("ISSUE TOKEN:") != string::npos) {
         eosio_assert(quantity.is_valid(), "Invalid token transfer");
-        eosio_assert(quantity.amount >= 10000, "Not enough EOS");  // 1.0000 EOS
+        eosio_assert(quantity.amount >= 20000, "Not enough EOS");  // 2.0000 EOS
 
         string token_remarks = memo.substr(12);
         std::size_t pos1 = token_remarks.find("|");
