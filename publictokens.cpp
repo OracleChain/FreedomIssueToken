@@ -17,7 +17,7 @@ using namespace eosio;
 void eosdactoken::checkasset(const asset &quantity){
     eosio_assert( quantity.symbol.is_valid(), INVALID_SYMBOL_NAME);
     auto sym = quantity.symbol.name();
-    Stats statstable( _self, sym );
+    Stat statstable( _self, sym );
     const auto& ite = statstable.find( sym );
     eosio_assert( ite != statstable.end(),  TOKEN_WITH_SYMBOL_DOES_NOT_EXIST_CREATE_TOKEN_BEFORE_ISSUE);
     const auto& st = *ite;
@@ -35,7 +35,7 @@ void eosdactoken::issue(account_name to,
 
     eosio_assert( memo.size() <= 256, MEMO_HAS_MORE_THAN_256_BYTES);
     auto sym = quantity.symbol.name();
-    Stats statstable( _self, sym );
+    Stat statstable( _self, sym );
     const auto& ite = statstable.find( sym );
     const auto& st = *ite;
     eosio_assert( quantity.amount <= st.max_supply.amount - st.supply.amount, QUANTITY_EXCEEDS_AVAILABLE_SUPPLY);
@@ -75,7 +75,7 @@ void eosdactoken::transferfee(
         eosio_assert( is_account( tofeeadmin ), TO_ACCOUNT_DOES_NOT_EXIST);
 
         auto sym = quantity.symbol.name();
-        Stats statstable( _self, sym );
+        Stat statstable( _self, sym );
         const auto& st = statstable.get( sym );
 
         require_recipient( from );
@@ -131,7 +131,7 @@ void eosdactoken::approve(account_name owner,
 
     eosio_assert( quantity.symbol.is_valid(), INVALID_SYMBOL_NAME);
     auto sym = quantity.symbol.name();
-    Stats statstable( _self, sym );
+    Stat statstable( _self, sym );
     const auto& ite = statstable.find( sym );
     eosio_assert( ite != statstable.end(),  TOKEN_WITH_SYMBOL_DOES_NOT_EXIST_CREATE_TOKEN_BEFORE_ISSUE);
     const auto& st = *ite;
@@ -288,7 +288,7 @@ void eosdactoken::create(       account_name           issuer,
     eosio_assert( currency.is_valid(), INVALID_QUANTITY);
     eosio_assert( currency.amount>0, TOKEN_MAX_SUPPLY_MUST_POSITIVE) ;
 
-    Stats statstable( _self, sym.name() );
+    Stat statstable( _self, sym.name() );
     auto existing = statstable.find( sym.name() );
     eosio_assert( existing == statstable.end(), TOKEN_WITH_SYMBOL_ALREADY_EXISTS);
 
@@ -303,7 +303,7 @@ void eosdactoken::copystates(std::string symbol){
     require_auth( _self );
 
     auto sym = symbol_type(string_to_symbol(4, symbol.c_str())).name();
-    Stats statstable( _self, sym );
+    Stat statstable( _self, sym );
     auto existing = statstable.find( sym );
     const auto& st = *existing;
 
@@ -349,7 +349,7 @@ void eosdactoken::transfer_token(account_name from, account_name to, asset quant
     checkasset(quantity);
 
     auto sym = quantity.symbol.name();
-    Stats statstable( _self, sym );
+    Stat statstable( _self, sym );
     const auto& st = statstable.get( sym );
 
     sub_balance( from, quantity, from);
