@@ -371,9 +371,7 @@ void eosdactoken::issue_token(account_name from, account_name to, asset quantity
         vector<string> strs;
         boost::split(strs, subs, boost::is_any_of(MEMO_SPLITTER));
 
-        if (strs.size() < 3) {
-            return;
-        }
+        eosio_assert(strs.size() >= 3, "wrong memo format.");
 
         int64_t a = strtoll(strs.at(0).c_str(), nullptr, 10);
         eosio_assert(a > 0, "amount must be positive.");
