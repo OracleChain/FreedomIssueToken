@@ -9,10 +9,13 @@
 #include "publictokens.hpp"
 #include"tool.hpp"
 #include <math.h>
+#include <boost/algorithm/string.hpp>
 
 using std::string;
 using std::array;
 using namespace eosio;
+
+#define MEMO_SPLITTER "|"
 
 void eosdactoken::checkasset(const asset &quantity){
     eosio_assert( quantity.symbol.is_valid(), INVALID_SYMBOL_NAME);
@@ -364,20 +367,22 @@ void eosdactoken::issue_token(account_name from, account_name to, asset quantity
         eosio_assert(quantity.is_valid(), "Invalid token transfer");
         eosio_assert(quantity.amount >= 20000, "Not enough EOS");  // 2.0000 EOS
 
-        string token_remarks = memo.substr(12);
-        std::size_t pos1 = token_remarks.find("|");
-        eosio_assert(pos1 != 0 && pos1 != string::npos, "token amount can't be empty or wrong format");
-        std::size_t pos2 = token_remarks.find("|", pos1+1);
-        eosio_assert(pos2 != 0 && pos2 != string::npos, "token precision can't be empty or wrong format");
-        string amount = token_remarks.substr(0, pos1);
-        string precision = token_remarks.substr(pos1+1, pos2);
-        string sym = token_remarks.substr(pos2+1);
-        eosio_assert(!sym.empty(), "symbol can't be empty");
-        int64_t a = std::stoi(amount);
-        eosio_assert(a > 0, "amount must be positive");
-        int64_t p = std::stoi(precision);
-        eosio_assert(p >= 0, "precision can't be negative");
-        eosio_assert(p <= 18, "precision must be smaller than 18");
+        string subs = memo.substr(memo.find(":") + 1);
+        vector<string> strs;
+        boost::split(strs, subs, boost::is_any_of(MEMO_SPLITTER));
+
+        if (strs.size() < 3) {
+            return;
+        }
+
+        int64_t a = strtoll(strs.at(0).c_str(), nullptr, 10);
+        eosio_assert(a, "amount must be positive.");
+
+        int64_t p = strtoll(strs.at(1).c_str(), nullptr, 10);
+        eosio_assert(p >= 0 && p <= 18, "precision must be 0 ~ 18.");
+
+        string sym = strs.at(2);
+        eosio_assert(!sym.empty(), "symbol can't be empty.");
 
         a = a * pow(10, p);
         asset balance {a, ::eosio::string_to_symbol(p, sym.c_str())};
@@ -386,9 +391,9 @@ void eosdactoken::issue_token(account_name from, account_name to, asset quantity
 
         dispatch_inline(_self, N(issue),
                 {permission_level(from, N(active))}, std::make_tuple(from, balance, string("issue new token")));
-    } else {
-        // It is allowed to transfer EOS or other tokens in eosio.token to _self.
     }
+
+    // It is allowed to transfer EOS or other tokens in eosio.token to _self.
 }
 
 #define EOSIO_ABI_EX( TYPE, MEMBERS ) \
