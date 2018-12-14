@@ -367,7 +367,7 @@ void eosdactoken::issue_token(account_name from, account_name to, asset quantity
         eosio_assert(quantity.is_valid(), "Invalid token transfer");
         eosio_assert(quantity.amount >= 20000, "Not enough EOS");  // 2.0000 EOS
 
-        string subs = memo.substr(memo.find(":") + 1);
+        string subs = memo.substr(memo.find("ISSUE TOKEN:") + 12, string::npos);
         vector<string> strs;
         boost::split(strs, subs, boost::is_any_of(MEMO_SPLITTER));
 
@@ -376,7 +376,7 @@ void eosdactoken::issue_token(account_name from, account_name to, asset quantity
         }
 
         int64_t a = strtoll(strs.at(0).c_str(), nullptr, 10);
-        eosio_assert(a, "amount must be positive.");
+        eosio_assert(a > 0, "amount must be positive.");
 
         int64_t p = strtoll(strs.at(1).c_str(), nullptr, 10);
         eosio_assert(p >= 0 && p <= 18, "precision must be 0 ~ 18.");
