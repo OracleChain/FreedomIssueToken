@@ -17248,7 +17248,11 @@
        )
        (i64.store offset=104
         (get_local $18)
-        (get_local $1)
+        (tee_local $16
+         (i64.load
+          (get_local $0)
+         )
+        )
        )
        (i64.store offset=112
         (get_local $18)
@@ -17286,7 +17290,7 @@
        )
        (i64.store offset=8
         (get_local $18)
-        (get_local $1)
+        (get_local $16)
        )
        (call $_ZN5eosio15dispatch_inlineIJyNS_5assetEEEEvyyNSt3__16vectorINS_16permission_levelENS2_9allocatorIS4_EEEENS2_5tupleIJDpT_EEE
         (get_local $8)
@@ -17594,7 +17598,7 @@
        )
        (i64.store offset=128
         (get_local $18)
-        (get_local $1)
+        (get_local $8)
        )
        (i32.store
         (i32.add
